@@ -1,0 +1,148 @@
+---
+export interface Props {
+  title: string;
+  authors: string[];       // My name should be 'Qazi Zarif Ul Islam'
+  venue: string;
+  year: number;
+  category: 'Conference' | 'Journal' | 'Workshop';
+  pdfUrl?: string;
+  codeUrl?: string;
+  projectUrl?: string;
+  abstract?: string;
+  bibtex?: string;
+  id: string;
+}
+
+const {
+  title,
+  authors,
+  venue,
+  year,
+  category,
+  pdfUrl,
+  codeUrl,
+  projectUrl,
+  abstract,
+  bibtex,
+  id,
+} = Astro.props;
+
+const myName = 'Qazi Zarif Ul Islam';
+const badgeClass =
+  category === 'Conference'
+    ? 'badge-conference'
+    : category === 'Journal'
+      ? 'badge-journal'
+      : 'badge-workshop';
+---
+
+<article
+  class="glass p-6 transition-all duration-300 hover:scale-[1.01]"
+  style="border-color: var(--color-border);"
+>
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+    <span class={badgeClass}>{category}</span>
+    <span class="text-sm font-mono" style="color: var(--color-muted);">{year}</span>
+  </div>
+
+  <h3 class="font-semibold text-base mb-2 leading-snug" style="color: var(--color-text);">
+    {title}
+  </h3>
+
+  <!-- Authors: bold my name -->
+  <p class="text-sm mb-1" style="color: var(--color-muted);">
+    {authors.map((author, i) => (
+      <>
+        {author === myName ? (
+          <strong style="color: var(--color-text);">{author}</strong>
+        ) : (
+          <span>{author}</span>
+        )}
+        {i < authors.length - 1 && <span>, </span>}
+      </>
+    ))}
+  </p>
+
+  <p class="text-sm italic mb-4" style="color: var(--color-muted);">
+    {venue}
+  </p>
+
+  {abstract && (
+    <details class="mb-4 text-sm" style="color: var(--color-muted);">
+      <summary class="cursor-pointer font-medium transition-colors duration-200 hover:opacity-80">Abstract</summary>
+      <p class="mt-2 leading-relaxed">{abstract}</p>
+    </details>
+  )}
+
+  <!-- Action buttons -->
+  <div class="flex flex-wrap gap-2">
+    {pdfUrl && (
+      <a href={pdfUrl} target="_blank" rel="noopener noreferrer" class="btn-ghost text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        PDF
+      </a>
+    )}
+    {codeUrl && (
+      <a href={codeUrl} target="_blank" rel="noopener noreferrer" class="btn-ghost text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Code
+      </a>
+    )}
+    {projectUrl && (
+      <a href={projectUrl} target="_blank" rel="noopener noreferrer" class="btn-ghost text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Project Page
+      </a>
+    )}
+    {bibtex && (
+      <button
+        onclick={`document.getElementById('bibtex-modal-${id}').showModal()`}
+        class="btn-ghost text-xs"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        BibTeX
+      </button>
+    )}
+  </div>
+</article>
+
+<!-- BibTeX Modal -->
+{bibtex && (
+  <dialog
+    id={`bibtex-modal-${id}`}
+    class="rounded-2xl p-0 max-w-lg w-full shadow-2xl"
+    style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
+  >
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h4 class="font-semibold text-base">BibTeX Citation</h4>
+        <button
+          onclick={`document.getElementById('bibtex-modal-${id}').close()`}
+          class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+          style="background: var(--color-surface);"
+          aria-label="Close"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <pre
+        class="text-xs overflow-x-auto p-4 rounded-xl mb-4 font-mono leading-relaxed"
+        style="background: var(--color-surface); border: 1px solid var(--color-border);"
+        id={`bibtex-pre-${id}`}
+      >{bibtex}</pre>
+      <button
+        id={`copy-btn-${id}`}
+        class="btn-volt w-full justify-center"
+        onclick={`
+          navigator.clipboard.writeText(document.getElementById('bibtex-pre-${id}').textContent);
+          const btn = document.getElementById('copy-btn-${id}');
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy to Clipboard'; }, 2000);
+        `}
+      >
+        Copy to Clipboard
+      </button>
+    </div>
+    <form method="dialog" style="display:none;"><button>close</button></form>
+  </dialog>
+)}

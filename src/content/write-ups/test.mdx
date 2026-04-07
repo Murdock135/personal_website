@@ -1,0 +1,179 @@
+---
+title: "Understanding the Evidence Lower Bound (ELBO)"
+description: "A deep dive into variational inference and the ELBO objective, with derivations, intuitions, and a PyTorch implementation."
+date: 2025-03-15
+tags: ["Variational Inference", "Deep Learning", "Math"]
+draft: false
+---
+
+## Introduction
+
+Variational Inference (VI) is a powerful framework for approximate Bayesian inference.
+Given a dataset $\mathcal{D} = \{x_i\}_{i=1}^N$ and a latent variable model with parameters $\theta$,
+we are often interested in computing the posterior over latent variables $z$:
+
+$$
+p_\theta(z \mid x) = \frac{p_\theta(x, z)}{p_\theta(x)}
+$$
+
+The marginal likelihood $p_\theta(x) = \int p_\theta(x, z)\, dz$ is generally **intractable** for complex models.
+VI sidesteps this by introducing an approximate posterior $q_\phi(z \mid x)$ from a tractable family.
+
+---
+
+## Deriving the ELBO
+
+We want to minimize $\text{KL}(q_\phi \| p_\theta)$, but this requires computing $p_\theta(x)$.
+Instead, we decompose the log-evidence:
+
+$$
+\log p_\theta(x) = \mathbb{E}_{q_\phi(z|x)}\!\left[\log \frac{p_\theta(x, z)}{q_\phi(z \mid x)}\right]
++ \text{KL}\!\left(q_\phi(z \mid x) \,\|\, p_\theta(z \mid x)\right)
+$$
+
+Since $\text{KL} \geq 0$, we get the **Evidence Lower BOund (ELBO)**:
+
+$$
+\mathcal{L}(\theta, \phi; x) = \mathbb{E}_{q_\phi(z|x)}\!\left[\log p_\theta(x \mid z)\right]
+- \text{KL}\!\left(q_\phi(z \mid x) \,\|\, p_\theta(z)\right)
+$$
+
+Maximizing the ELBO is equivalent to:
+1. **Maximizing the expected log-likelihood** (reconstruction term).
+2. **Minimizing the KL divergence** between the approximate posterior and the prior (regularization term).
+
+---
+
+## The Reparameterization Trick
+
+To backpropagate through the sampling operation $z \sim q_\phi(z \mid x)$, we use the
+**reparameterization trick**. For a Gaussian approximate posterior:
+
+$$
+q_\phi(z \mid x) = \mathcal{N}(\mu_\phi(x),\, \sigma_\phi^2(x) \cdot I)
+$$
+
+We sample as:
+
+$$
+z = \mu_\phi(x) + \sigma_\phi(x) \odot \varepsilon, \quad \varepsilon \sim \mathcal{N}(0, I)
+$$
+
+This makes the gradient flow through $\mu_\phi$ and $\sigma_\phi$ rather than through the stochastic node.
+
+---
+
+## PyTorch Implementation
+
+Here is a minimal **Variational Autoencoder (VAE)** implementing the ELBO in PyTorch:
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Encoder(nn.Module):
+    def __init__(self, input_dim: int, hidden_dim: int, latent_dim: int):
+        super().__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+        )
+        self.mu_head = nn.Linear(hidden_dim, latent_dim)
+        self.logvar_head = nn.Linear(hidden_dim, latent_dim)
+
+    def forward(self, x: torch.Tensor):
+        h = self.fc(x)
+        mu = self.mu_head(h)
+        logvar = self.logvar_head(h)
+        return mu, logvar
+
+
+class Decoder(nn.Module):
+    def __init__(self, latent_dim: int, hidden_dim: int, output_dim: int):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(latent_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+
+    def forward(self, z: torch.Tensor) -> torch.Tensor:
+        return self.net(z)
+
+
+class VAE(nn.Module):
+    def __init__(self, input_dim: int = 784, hidden_dim: int = 400, latent_dim: int = 20):
+        super().__init__()
+        self.encoder = Encoder(input_dim, hidden_dim, latent_dim)
+        self.decoder = Decoder(latent_dim, hidden_dim, input_dim)
+
+    def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+        """Sample z via the reparameterization trick."""
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def forward(self, x: torch.Tensor):
+        mu, logvar = self.encoder(x)
+        z = self.reparameterize(mu, logvar)
+        recon_x = self.decoder(z)
+        return recon_x, mu, logvar
+
+    def elbo_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Compute the negative ELBO (loss to minimize)."""
+        recon_x, mu, logvar = self(x)
+
+        # Reconstruction term: -E[log p(x|z)]
+        recon_loss = F.binary_cross_entropy_with_logits(recon_x, x, reduction="sum")
+
+        # KL divergence: KL(q(z|x) || p(z)) with p(z) = N(0, I)
+        # Closed-form: -0.5 * sum(1 + log(σ²) - μ² - σ²)
+        kl_div = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
+        return (recon_loss + kl_div) / x.size(0)
+```
+
+---
+
+## Training Loop
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = VAE().to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+def train_epoch(model, loader, optimizer):
+    model.train()
+    total_loss = 0.0
+    for x, _ in loader:
+        x = x.view(x.size(0), -1).to(device)
+        optimizer.zero_grad()
+        loss = model.elbo_loss(x)
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    return total_loss / len(loader)
+```
+
+---
+
+## Closed-Form KL for Gaussians
+
+When both $q$ and the prior $p(z) = \mathcal{N}(0, I)$ are Gaussian, the KL term has a closed form:
+
+$$
+\text{KL}\!\left(\mathcal{N}(\mu, \sigma^2) \,\|\, \mathcal{N}(0, 1)\right)
+= -\frac{1}{2}\sum_{j=1}^{d} \left(1 + \log \sigma_j^2 - \mu_j^2 - \sigma_j^2\right)
+$$
+
+This is exactly what the `kl_div` line computes above — no Monte Carlo estimation needed.
+
+---
+
+## Further Reading
+
+- Kingma & Welling (2013). *Auto-Encoding Variational Bayes.* [arXiv:1312.6114](https://arxiv.org/abs/1312.6114)
+- Blei, Kucukelbir & McAuliffe (2017). *Variational Inference: A Review for Statisticians.* JASA.
+- Rezende & Vila (2015). *Variational Inference with Normalizing Flows.* ICML.

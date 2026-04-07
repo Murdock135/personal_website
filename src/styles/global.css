@@ -1,0 +1,203 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+@plugin "@tailwindcss/typography";
+
+/* ─── Design Tokens ──────────────────────────────────────────── */
+@theme {
+  --color-volt: #D4FF80;
+  --color-true-black: #000000;
+  --color-silver: #A0A0A8;
+  --font-family-sans: Inter, system-ui, sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ─── CSS Variables (light / dark) ──────────────────────────── */
+:root {
+  --color-bg: #ffffff;
+  --color-surface: rgba(255, 255, 255, 0.6);
+  --color-border: rgba(148, 163, 184, 0.25);
+  --color-text: #1e293b;
+  --color-muted: #64748b;
+  --color-accent: #7c3aed;
+}
+
+.dark {
+  --color-bg: #000000;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text: #ffffff;
+  --color-muted: #A0A0A8;
+  --color-accent: #D4FF80;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── Reusable Components ───────────────────────────────────── */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+}
+
+/* Spotlight: fade image edges into background */
+.spotlight-img {
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, black 45%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, black 45%, transparent 100%);
+}
+
+/* Primary CTA — Volt button */
+.btn-volt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background-color: #D4FF80;
+  color: #000000;
+  transition: all 300ms ease;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+.btn-volt:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(212, 255, 128, 0.4);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  background: transparent;
+  transition: all 300ms ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--color-accent);
+}
+
+.section-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+}
+
+/* Category badges */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-conference {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+}
+.dark .badge-conference {
+  background: rgba(124, 58, 237, 0.25);
+  color: #c4b5fd;
+}
+.badge-journal {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+.dark .badge-journal {
+  background: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+}
+.badge-workshop {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+.dark .badge-workshop {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fcd34d;
+}
+
+/* ─── Light-mode pastel gradient blobs ──────────────────────── */
+.light-blob-1 {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+  background: radial-gradient(circle, #c4b5fd, transparent 70%);
+  width: 600px;
+  height: 600px;
+  top: -100px;
+  right: -100px;
+}
+.light-blob-2 {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.2;
+  pointer-events: none;
+  background: radial-gradient(circle, #93c5fd, transparent 70%);
+  width: 500px;
+  height: 500px;
+  bottom: 0;
+  left: -150px;
+}
+
+/* ─── Prose overrides ────────────────────────────────────────── */
+.prose {
+  color: var(--color-text);
+}
+.prose a {
+  color: var(--color-accent);
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--color-text);
+  font-weight: 700;
+}
+.prose code:not(pre code) {
+  color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+.prose pre {
+  background: #0d0d0d !important;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}

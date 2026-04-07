@@ -1,0 +1,82 @@
+---
+import Layout from './Layout.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  tags?: string[];
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { title, description, date, tags = [], headings = [] } = Astro.props;
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<Layout title={title} description={description}>
+  <div class="max-w-5xl mx-auto px-6 py-16">
+    <div class="flex flex-col lg:flex-row gap-12">
+
+      <!-- Main content -->
+      <article class="flex-1 min-w-0">
+        <!-- Back link -->
+        <a
+          href="/write-ups"
+          class="inline-flex items-center gap-1.5 text-sm mb-8 transition-colors duration-200 hover:opacity-80"
+          style="color: var(--color-muted);"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Write-ups
+        </a>
+
+        <!-- Header -->
+        <header class="mb-10">
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            {tags.map((tag) => (
+              <span
+                class="text-xs px-2 py-0.5 rounded-md font-mono"
+                style="background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-muted);"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight mb-3" style="color: var(--color-text);">{title}</h1>
+          <p class="text-base mb-4" style="color: var(--color-muted);">{description}</p>
+          <time class="text-xs font-mono" style="color: var(--color-muted);">{formatDate(date)}</time>
+        </header>
+
+        <!-- MDX content -->
+        <div class="prose prose-lg dark:prose-invert max-w-none">
+          <slot />
+        </div>
+      </article>
+
+      <!-- Table of Contents (sticky sidebar) -->
+      {headings.length > 0 && (
+        <aside class="hidden lg:block w-56 flex-shrink-0">
+          <div class="sticky top-24">
+            <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color: var(--color-muted);">
+              On this page
+            </p>
+            <nav class="flex flex-col gap-1.5">
+              {headings.filter(h => h.depth <= 3).map((h) => (
+                <a
+                  href={`#${h.slug}`}
+                  class="text-xs leading-snug transition-colors duration-200 hover:opacity-100 block"
+                  style={`color: var(--color-muted); padding-left: ${(h.depth - 1) * 12}px;`}
+                >
+                  {h.text}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </aside>
+      )}
+
+    </div>
+  </div>
+</Layout>

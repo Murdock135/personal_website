@@ -1,0 +1,108 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Publication from '../components/Publication.astro';
+
+const publications = [
+  {
+    id: 'islam2025calibrating',
+    title: 'Calibrating Large Language Models for Low-Resource NLP via Conformal Prediction',
+    authors: ['Qazi Zarif Ul Islam', 'Jane Doe', 'John Smith'],
+    venue: 'Proceedings of the 63rd Annual Meeting of the ACL',
+    year: 2025,
+    category: 'Conference' as const,
+    pdfUrl: '#',
+    codeUrl: 'https://github.com/qzarifuislam',
+    abstract:
+      'We propose a post-hoc calibration framework for LLMs in low-resource multilingual settings using conformal prediction. Our method produces valid prediction sets with guaranteed coverage across 24 languages without requiring additional training data.',
+    bibtex: `@inproceedings{islam2025calibrating,
+  title     = {Calibrating Large Language Models for Low-Resource NLP via Conformal Prediction},
+  author    = {Islam, Qazi Zarif Ul and Doe, Jane and Smith, John},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics},
+  year      = {2025},
+  url       = {https://aclanthology.org/placeholder}
+}`,
+  },
+  {
+    id: 'islam2024emnlp',
+    title: 'Few-Shot Named Entity Recognition in Code-Switched Text',
+    authors: ['Qazi Zarif Ul Islam', 'Alice Chen'],
+    venue: 'Proceedings of EMNLP 2024 Workshop on Low-Resource NLP',
+    year: 2024,
+    category: 'Workshop' as const,
+    pdfUrl: '#',
+    abstract:
+      'We study few-shot NER in code-switched Bangla-English and Hindi-English texts, proposing a cross-lingual prompt augmentation strategy that improves F1 by 4.2 points over strong baselines.',
+    bibtex: `@inproceedings{islam2024emnlp,
+  title     = {Few-Shot Named Entity Recognition in Code-Switched Text},
+  author    = {Islam, Qazi Zarif Ul and Chen, Alice},
+  booktitle = {Proceedings of EMNLP 2024 Workshop on Low-Resource NLP},
+  year      = {2024}
+}`,
+  },
+];
+
+const categories = ['All', 'Conference', 'Journal', 'Workshop'] as const;
+type Category = (typeof categories)[number];
+---
+
+<Layout title="Publications" description="Academic publications by Qazi Zarif Ul Islam.">
+  <div class="max-w-5xl mx-auto px-6 py-16">
+
+    <h1 class="section-title" style="color: var(--color-text);">
+      <span style="color: var(--color-accent);">/</span> Publications
+    </h1>
+
+    <!-- Filter buttons -->
+    <div class="flex flex-wrap gap-2 mb-10" id="filter-bar">
+      {categories.map((cat) => (
+        <button
+          data-filter={cat}
+          class:list={['btn-ghost text-xs transition-all duration-200', { 'active-filter': cat === 'All' }]}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+
+    <!-- Publications list -->
+    <div class="flex flex-col gap-5" id="pub-list">
+      {publications.map((pub) => (
+        <div data-category={pub.category} class="pub-item">
+          <Publication {...pub} />
+        </div>
+      ))}
+    </div>
+
+    {publications.length === 0 && (
+      <p class="text-sm" style="color: var(--color-muted);">No publications yet. Check back soon!</p>
+    )}
+  </div>
+</Layout>
+
+<script>
+  const filterBar = document.getElementById('filter-bar');
+  const pubItems = document.querySelectorAll<HTMLElement>('.pub-item');
+
+  filterBar?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('[data-filter]') as HTMLElement | null;
+    if (!btn) return;
+
+    const filter = btn.dataset.filter ?? 'All';
+
+    // Update active button style
+    filterBar.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active-filter'));
+    btn.classList.add('active-filter');
+
+    pubItems.forEach((item) => {
+      const match = filter === 'All' || item.dataset.category === filter;
+      item.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+<style>
+  .active-filter {
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
+</style>

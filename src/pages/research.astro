@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const interests = [
+  {
+    icon: '🧠',
+    title: 'Natural Language Processing',
+    desc: 'Low-resource NLP, cross-lingual transfer, and robustness of large language models across underrepresented languages and domains.',
+  },
+  {
+    icon: '⚖️',
+    title: 'AI Alignment & Safety',
+    desc: 'Calibration, uncertainty quantification, and value alignment in language models to ensure reliable and trustworthy AI systems.',
+  },
+  {
+    icon: '📊',
+    title: 'Structured Prediction',
+    desc: 'Sequence labeling, information extraction, and relation classification using graph-based and generative approaches.',
+  },
+];
+
+const projects = [
+  {
+    title: 'Calibrating LLMs for Low-Resource NLP',
+    status: 'Active',
+    description:
+      'Investigating temperature scaling and conformal prediction methods to produce reliable confidence estimates in low-resource language settings. We benchmark on 20+ languages from the XTREME-R suite.',
+    tags: ['LLMs', 'Calibration', 'Low-Resource NLP', 'Multilingual'],
+    collaborators: ['Prof. [Advisor]', '[Collaborator 1]'],
+    venue: 'ACL 2025',
+  },
+  {
+    title: 'Graph-Enhanced Relation Extraction',
+    status: 'Active',
+    description:
+      'Leveraging dependency parse graphs and entity type constraints within a generative seq2seq framework for joint entity and relation extraction from biomedical text.',
+    tags: ['Information Extraction', 'GNN', 'Biomedical NLP'],
+    collaborators: ['[Collaborator 2]'],
+    venue: 'Under Review',
+  },
+  {
+    title: 'Reward Hacking in RLHF',
+    status: 'Exploratory',
+    description:
+      'Studying failure modes of reward models used in RLHF pipelines, with a focus on distributional shift and sycophancy. Proposing regularization strategies to mitigate reward overoptimization.',
+    tags: ['RLHF', 'Alignment', 'Reward Modeling'],
+    collaborators: [],
+    venue: 'In Progress',
+  },
+];
+---
+
+<Layout title="Research" description="Research interests and active projects of Qazi Zarif Ul Islam.">
+  <div class="max-w-5xl mx-auto px-6 py-16">
+
+    <!-- Research Interests -->
+    <section class="mb-20">
+      <h1 class="section-title" style="color: var(--color-text);">
+        <span style="color: var(--color-accent);">/</span> Research
+      </h1>
+      <p class="text-sm leading-relaxed mb-10 max-w-2xl" style="color: var(--color-muted);">
+        My work sits at the intersection of <strong style="color: var(--color-text);">machine learning</strong> and
+        <strong style="color: var(--color-text);">natural language processing</strong>, with a focus on building
+        systems that are robust, reliable, and equitable across languages and cultures.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        {interests.map(({ icon, title, desc }) => (
+          <div class="glass p-6">
+            <div class="text-3xl mb-4">{icon}</div>
+            <h3 class="font-semibold mb-2 text-base" style="color: var(--color-text);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-muted);">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Active Projects -->
+    <section>
+      <h2 class="section-title" style="color: var(--color-text);">
+        <span style="color: var(--color-accent);">/</span> Projects
+      </h2>
+      <div class="flex flex-col gap-6">
+        {projects.map(({ title, status, description, tags, collaborators, venue }) => (
+          <article class="glass p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+              <h3 class="font-semibold text-base" style="color: var(--color-text);">{title}</h3>
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-xs px-2.5 py-1 rounded-full font-semibold"
+                  style={`background: ${status === 'Active' ? 'rgba(212,255,128,0.15)' : 'rgba(148,163,184,0.15)'}; color: ${status === 'Active' ? '#D4FF80' : 'var(--color-muted)'};`}
+                >
+                  {status}
+                </span>
+                <span class="text-xs font-mono" style="color: var(--color-muted);">{venue}</span>
+              </div>
+            </div>
+            <p class="text-sm leading-relaxed mb-4" style="color: var(--color-muted);">{description}</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              {tags.map((tag) => (
+                <span class="text-xs px-2 py-0.5 rounded-md font-mono" style="background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-muted);">{tag}</span>
+              ))}
+            </div>
+            {collaborators.length > 0 && (
+              <p class="text-xs" style="color: var(--color-muted);">
+                <span class="font-medium" style="color: var(--color-text);">Collaborators:</span>{' '}
+                {collaborators.join(', ')}
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+
+  </div>
+</Layout>
