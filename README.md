@@ -1,104 +1,31 @@
 # Personal Academic Website
 
-Built with [Astro 6](https://astro.build) + [Tailwind CSS v4](https://tailwindcss.com). Features a dark (noir/volt-green) and light (glassmorphic) dual theme, KaTeX math rendering, Shiki syntax highlighting, and MDX-based write-ups.
+A static academic portfolio built with Astro 6, Tailwind CSS v4, and Markdown/MDX. It includes home, research, publications, CV, and write-up pages, light/dark themes, KaTeX math, and Shiki code highlighting.
 
-## Commands
+## Quick start
 
-| Command           | Action                                      |
-| :---------------- | :------------------------------------------ |
-| `npm install`     | Install dependencies                        |
-| `npm run dev`     | Start local dev server at `localhost:4321`  |
-| `npm run build`   | Build production site to `./dist/`          |
-| `npm run preview` | Preview the production build locally        |
+Use a current Node 22 LTS release satisfying the repository's Node `>=22.12.0` requirement, and npm. From the repository root:
 
-## Updating the site
-
-### Profile photo
-Replace `public/profile.jpg` with your own photo (keep the filename).
-
-### Bio, social links, and news
-Edit `src/pages/index.astro` — update the `news` array and the bio paragraph in the HTML section.
-
-### Research interests and projects
-Edit `src/pages/research.astro` — update the `interests` and `projects` arrays at the top of the file.
-
-### Publications
-Edit `src/pages/publications.astro` — add entries to the `publications` array. Each entry supports:
-
-```ts
-{
-  id: 'unique-id',           // used for the BibTeX modal
-  title: '...',
-  authors: ['Your Name', 'Co-author'],  // your name gets bolded automatically
-  venue: '...',
-  year: 2025,
-  category: 'Conference' | 'Journal' | 'Workshop',
-  pdfUrl: '...',             // optional
-  codeUrl: '...',            // optional
-  projectUrl: '...',         // optional
-  abstract: '...',           // optional, shown in a collapsible
-  bibtex: `@inproceedings{...}`,  // optional, enables the BibTeX modal
-}
+```sh
+npm ci
+npm run dev
 ```
 
-### CV
-Edit `src/pages/cv.astro` — update the `education`, `awards`, and `skills` objects at the top.
-Place your CV PDF at `public/cv.pdf` to make the Download button work.
+Open the local URL printed in the terminal, usually `http://localhost:4321`. Stop the server with `Ctrl+C`.
 
-### Write-ups (blog posts)
-Create a new `.mdx` file in `src/content/write-ups/`. The filename becomes the URL slug (e.g. `my-post.mdx` → `/write-ups/my-post`).
+| Command | Purpose |
+| --- | --- |
+| `npm ci` | Install dependencies from the committed lockfile |
+| `npm run dev` | Start the development server with live updates |
+| `npm run build` | Generate the static site in `dist/` |
+| `npm run preview` | Serve the most recent production build locally |
 
-Required frontmatter:
+## Guides
 
-```yaml
----
-title: "Post Title"
-description: "One-line summary shown in the grid preview."
-date: 2025-04-07
-tags: ["Tag1", "Tag2"]
-draft: false          # set to true to hide from listing
-image: /images/cover.png  # optional cover image
----
-```
+- [Local setup and troubleshooting](docs/getting-started.md)
+- [Update pages, publications, and write-ups](docs/content-guide.md)
+- [Build, review, and deploy](docs/deployment.md)
 
-Supported inside MDX:
-- **Inline math**: `$E = mc^2$`
-- **Block math**: `$$\mathcal{L}(\theta) = ...$$`
-- **Code blocks** with syntax highlighting (Shiki): use standard fenced blocks with a language tag
-- Standard Markdown: headings, lists, tables, blockquotes, images
-- A Table of Contents is auto-generated from headings and shown in the sidebar on desktop
+## Current status
 
-### Site-wide defaults (name, URL, SEO)
-- Name in nav: `src/components/Nav.astro`
-- Name in footer: `src/components/Footer.astro`
-- Default SEO description and site URL: `src/layouts/Layout.astro` (top of the frontmatter block)
-- Google Scholar author meta and citation name: `src/layouts/Layout.astro`
-
-## Project structure
-
-```
-src/
-  layouts/
-    Layout.astro          — shared HTML shell (SEO, theme init, nav, footer)
-    PostLayout.astro      — write-up page layout with ToC sidebar
-  components/
-    Nav.astro             — sticky glassmorphic header + theme toggle
-    Footer.astro          — copyright and credits
-    Publication.astro     — publication card with BibTeX modal
-  pages/
-    index.astro           — home (bio, photo, social icons, news timeline)
-    research.astro        — research interests + project cards
-    publications.astro    — filterable publications list
-    cv.astro              — CV with PDF download
-    write-ups/
-      index.astro         — 3-column post grid
-      [slug].astro        — individual post page
-  content/
-    write-ups/            — MDX files (one per post)
-  content.config.ts       — content collection schema
-  styles/
-    global.css            — Tailwind v4 theme tokens, component styles
-public/
-  profile.jpg             — profile photo
-  cv.pdf                  — CV download (add this yourself)
-```
+Sample content has been removed; the existing name, profile photo, and page structure remain. Content lists start empty. The CV download appears only when `public/cv.pdf` exists at build time, and social sharing images are optional. Draft write-ups are hidden from the listing but still get generated pages. No deployment workflow is configured; see the deployment guide for setup and URL limitations.

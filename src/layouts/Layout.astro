@@ -12,8 +12,8 @@ export interface Props {
 
 const {
   title,
-  description = 'Qazi Zarif Ul Islam — CS PhD Student. Research in machine learning, NLP, and AI systems.',
-  ogImage = '/og-default.png',
+  description = 'Personal website of Qazi Zarif Ul Islam.',
+  ogImage,
   canonical,
 } = Astro.props;
 
@@ -38,13 +38,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={`${title} | Qazi Zarif Ul Islam`} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    {ogImage && <meta property="og:image" content={`${siteUrl}${ogImage}`} />}
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
     <meta name="twitter:title" content={`${title} | Qazi Zarif Ul Islam`} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+    {ogImage && <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />}
 
     <!-- Google Scholar indexing hints -->
     <meta name="citation_author" content="Qazi Zarif Ul Islam" />
